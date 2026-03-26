@@ -11,6 +11,7 @@ import { FastmailAuth, FastmailConfig } from './auth.js';
 import { JmapClient } from './jmap-client.js';
 import { ContactsCalendarClient } from './contacts-calendar.js';
 import { CalDAVCalendarClient } from './caldav-client.js';
+import { getDisabledToolNames } from './tool-filters.js';
 
 const server = new Server(
   {
@@ -111,8 +112,8 @@ function initializeCalDAVClient(): CalDAVCalendarClient | null {
 }
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
+  const disabledTools = getDisabledToolNames();
+  const allTools = [
       {
         name: 'list_mailboxes',
         description: 'List all mailboxes in the Fastmail account',
@@ -918,12 +919,22 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
         },
       },
-    ],
+  ];
+  return {
+    tools: allTools.filter(t => !disabledTools.has(t.name)),
   };
 });
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+
+  const disabledTools = getDisabledToolNames();
+  if (disabledTools.has(name)) {
+    throw new McpError(
+      ErrorCode.MethodNotFound,
+      `Tool "${name}" is disabled via DISABLE_TOOLS environment variable`
+    );
+  }
 
   try {
 
