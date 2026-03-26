@@ -5,7 +5,7 @@
  * triggering the MCP server startup.
  */
 
-// ---------- env helper (mirrors findEnvValue from index.ts) ----------
+// ---------- env helper ----------
 
 function getEnvValue(keys: string[]): string | undefined {
   const isPlaceholder = (val: string) => /\$\{[^}]+\}/.test(val.trim());
