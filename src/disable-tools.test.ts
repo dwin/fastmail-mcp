@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { getDisabledToolNames, TOOL_GROUPS } from './index.js';
+import { getDisabledToolNames, TOOL_GROUPS } from './tool-filters.js';
 
 // ---------- helpers ----------
 
