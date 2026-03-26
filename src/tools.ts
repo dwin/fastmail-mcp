@@ -21,7 +21,15 @@ export function getOperationMode(tool: Pick<Tool, 'annotations'>): OperationMode
     return 'read-only';
   }
 
-  return tool.annotations?.destructiveHint === false ? 'mutative' : 'destructive';
+  if (tool.annotations?.destructiveHint === false) {
+    return 'mutative';
+  }
+
+  if (tool.annotations?.destructiveHint === true) {
+    return 'destructive';
+  }
+
+  throw new Error('Non-read-only tools must explicitly define destructiveHint');
 }
 
 export const TOOLS: Tool[] = [
