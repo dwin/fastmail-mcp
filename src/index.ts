@@ -110,9 +110,67 @@ function initializeCalDAVClient(): CalDAVCalendarClient | null {
   return caldavClient;
 }
 
+// ---------- tool groups & disable logic ----------
+
+export const TOOL_GROUPS: Record<string, string[]> = {
+  email: [
+    'list_mailboxes', 'list_emails', 'get_email', 'get_recent_emails',
+    'search_emails', 'advanced_search', 'get_thread',
+    'get_email_attachments', 'download_attachment',
+    'get_mailbox_stats', 'get_account_summary',
+  ],
+  write: [
+    'send_email', 'reply_email', 'create_draft', 'edit_draft', 'send_draft',
+    'mark_email_read', 'pin_email', 'delete_email', 'move_email',
+    'add_labels', 'remove_labels',
+    'bulk_mark_read', 'bulk_pin', 'bulk_move', 'bulk_delete',
+    'bulk_add_labels', 'bulk_remove_labels',
+    'create_calendar_event',
+  ],
+  calendar: [
+    'list_calendars', 'list_calendar_events', 'get_calendar_event',
+    'create_calendar_event',
+  ],
+  contacts: [
+    'list_contacts', 'get_contact', 'search_contacts',
+  ],
+  bulk: [
+    'bulk_mark_read', 'bulk_pin', 'bulk_move', 'bulk_delete',
+    'bulk_add_labels', 'bulk_remove_labels', 'test_bulk_operations',
+  ],
+  search: [
+    'search_emails', 'advanced_search', 'search_contacts',
+  ],
+  identity: [
+    'list_identities', 'check_function_availability',
+  ],
+};
+
+export function getDisabledToolNames(): Set<string> {
+  const raw = findEnvValue([
+    'DISABLE_TOOLS',
+    'USER_CONFIG_DISABLE_TOOLS',
+  ]).value;
+  if (!raw) return new Set();
+
+  const disabled = new Set<string>();
+  for (const entry of raw.split(',')) {
+    const trimmed = entry.trim().toLowerCase();
+    if (!trimmed) continue;
+    if (TOOL_GROUPS[trimmed]) {
+      for (const tool of TOOL_GROUPS[trimmed]) {
+        disabled.add(tool);
+      }
+    } else {
+      disabled.add(trimmed);
+    }
+  }
+  return disabled;
+}
+
 server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
+  const disabledTools = getDisabledToolNames();
+  const allTools = [
       {
         name: 'list_mailboxes',
         description: 'List all mailboxes in the Fastmail account',
@@ -918,12 +976,22 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
         },
       },
-    ],
+  ];
+  return {
+    tools: allTools.filter(t => !disabledTools.has(t.name)),
   };
 });
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+
+  const disabledTools = getDisabledToolNames();
+  if (disabledTools.has(name)) {
+    throw new McpError(
+      ErrorCode.MethodNotFound,
+      `Tool "${name}" is disabled via DISABLE_TOOLS environment variable`
+    );
+  }
 
   try {
 

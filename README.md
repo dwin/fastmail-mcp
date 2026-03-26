@@ -75,6 +75,40 @@ A Model Context Protocol (MCP) server that provides access to the Fastmail API, 
    export FASTMAIL_BASE_URL="https://api.fastmail.com"
    ```
 
+### Disabling Tools
+
+You can selectively disable tools at runtime using the `DISABLE_TOOLS` environment variable. Disabled tools will not appear in tool discovery and cannot be called.
+
+Set `DISABLE_TOOLS` to a comma-separated list of individual tool names and/or group names:
+
+```bash
+# Disable specific tools
+export DISABLE_TOOLS="send_email,delete_email"
+
+# Disable an entire group
+export DISABLE_TOOLS="calendar"
+
+# Mix individual tools and groups
+export DISABLE_TOOLS="calendar,contacts,send_email"
+
+# Disable all write/mutating operations (read-only mode)
+export DISABLE_TOOLS="write"
+```
+
+**Available groups:**
+
+| Group | Tools |
+|-------|-------|
+| `email` | `list_mailboxes`, `list_emails`, `get_email`, `get_recent_emails`, `search_emails`, `advanced_search`, `get_thread`, `get_email_attachments`, `download_attachment`, `get_mailbox_stats`, `get_account_summary` |
+| `write` | `send_email`, `reply_email`, `create_draft`, `edit_draft`, `send_draft`, `mark_email_read`, `pin_email`, `delete_email`, `move_email`, `add_labels`, `remove_labels`, `bulk_mark_read`, `bulk_pin`, `bulk_move`, `bulk_delete`, `bulk_add_labels`, `bulk_remove_labels`, `create_calendar_event` |
+| `calendar` | `list_calendars`, `list_calendar_events`, `get_calendar_event`, `create_calendar_event` |
+| `contacts` | `list_contacts`, `get_contact`, `search_contacts` |
+| `bulk` | `bulk_mark_read`, `bulk_pin`, `bulk_move`, `bulk_delete`, `bulk_add_labels`, `bulk_remove_labels`, `test_bulk_operations` |
+| `search` | `search_emails`, `advanced_search`, `search_contacts` |
+| `identity` | `list_identities`, `check_function_availability` |
+
+The `USER_CONFIG_DISABLE_TOOLS` variant is also supported for Claude Desktop DXT deployments.
+
 ### Running the Server
 
 Start the MCP server:
