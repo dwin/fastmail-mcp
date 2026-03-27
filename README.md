@@ -166,120 +166,76 @@ You can install this server as a Desktop Extension for Claude Desktop using the 
 
 ## Available Tools (38 Total)
 
-Every tool advertises MCP operation hints through `annotations.readOnlyHint` and `annotations.destructiveHint`.
+Every tool advertises MCP operation hints via `annotations.readOnlyHint` and `annotations.destructiveHint`.
 
-### Operation Mode Legend
+| Mode | `readOnlyHint` | `destructiveHint` | Meaning |
+|------|---------------|-------------------|---------|
+| Read-only | `true` | — | Reads data only, no side effects |
+| Mutative | `false` | `false` | Changes state, but additive/non-destructive |
+| Destructive | `false` | `true` | May delete, send, or make irreversible changes |
 
-- **[Read-only]**: The tool only reads data and does not modify Fastmail or the local environment.
-  - MCP hints: `readOnlyHint: true`
-  - Examples: `list_mailboxes`, `get_email`, `advanced_search`
-- **[Mutative]**: The tool changes state, but the change is additive or otherwise non-destructive.
-  - MCP hints: `readOnlyHint: false`, `destructiveHint: false`
-  - Examples: `create_draft`, `mark_email_read`, `create_calendar_event`
-- **[Destructive]**: The tool may delete, replace, send, remove, or otherwise make irreversible changes.
-  - MCP hints: `readOnlyHint: false`, `destructiveHint: true`
-  - Examples: `send_email`, `delete_email`, `bulk_move`
+### Email
 
-These categories are intended to help implementers and clients apply confirmation, review, or privilege escalation before executing higher-risk tools.
-
-**🎯 Most Popular Tools:**
-- **[Read-only] check_function_availability**: Check what's available and get setup guidance
-- **[Mutative] test_bulk_operations**: Safely test bulk operations with dry-run mode
-- **[Destructive] send_email**: Full-featured email sending with proper draft/sent handling
-- **[Read-only] advanced_search**: Powerful multi-criteria email filtering
-- **[Read-only] get_recent_emails**: Quick access to recent emails from any mailbox
-
-### Email Tools
-
-- **[Read-only] list_mailboxes**: Get all mailboxes in your account
-- **[Read-only] list_emails**: List emails from a specific mailbox or all mailboxes
-  - Parameters: `mailboxId` (optional), `limit` (default: 20)
-- **[Read-only] get_email**: Get a specific email by ID
-  - Parameters: `emailId` (required)
-- **[Destructive] send_email**: Send an email (supports threading via optional `inReplyTo` and `references` headers)
-  - Parameters: `to` (required array), `cc` (optional array), `bcc` (optional array), `from` (optional), `mailboxId` (optional), `subject` (required), `textBody` (optional), `htmlBody` (optional), `inReplyTo` (optional array), `references` (optional array)
-- **[Destructive] reply_email**: Reply to an existing email with proper threading headers (automatically builds In-Reply-To and References). Set `send=false` to save as draft instead of sending.
-  - Parameters: `originalEmailId` (required), `to` (optional array, defaults to original sender), `cc` (optional array), `bcc` (optional array), `from` (optional), `textBody` (optional), `htmlBody` (optional), `send` (optional boolean, default: true)
-- **[Mutative] create_draft**: Create an email draft without sending it
-  - Parameters: `to` (optional array), `cc` (optional array), `bcc` (optional array), `from` (optional), `mailboxId` (optional), `subject` (optional), `textBody` (optional), `htmlBody` (optional), `inReplyTo` (optional array), `references` (optional array)
-- **[Destructive] edit_draft**: Edit an existing draft by atomically replacing it with an updated draft
-  - Parameters: `emailId` (required), `to` (optional array), `cc` (optional array), `bcc` (optional array), `from` (optional), `subject` (optional), `textBody` (optional), `htmlBody` (optional)
-- **[Destructive] send_draft**: Send an existing draft email
-  - Parameters: `emailId` (required)
-- **[Read-only] search_emails**: Search emails by content
-  - Parameters: `query` (required), `limit` (default: 20)
-- **[Read-only] get_recent_emails**: Get the most recent emails from a mailbox (inspired by JMAP-Samples top-ten)
-  - Parameters: `limit` (default: 10, max: 50), `mailboxName` (default: 'inbox')
-- **[Mutative] mark_email_read**: Mark an email as read or unread
-  - Parameters: `emailId` (required), `read` (default: true)
-- **[Mutative] pin_email**: Pin or unpin an email
-  - Parameters: `emailId` (required), `pinned` (default: true)
-- **[Destructive] delete_email**: Delete an email (move to trash)
-  - Parameters: `emailId` (required)
-- **[Destructive] move_email**: Move an email to a different mailbox (replaces all mailboxes)
-  - Parameters: `emailId` (required), `targetMailboxId` (required)
-- **[Mutative] add_labels**: Add labels (mailboxes) to an email without removing existing ones
-  - Parameters: `emailId` (required), `mailboxIds` (required array)
-- **[Destructive] remove_labels**: Remove specific labels (mailboxes) from an email
-  - Parameters: `emailId` (required), `mailboxIds` (required array)
-
-### Advanced Email Features
-
-- **[Read-only] get_email_attachments**: Get list of attachments for an email
-  - Parameters: `emailId` (required)
-- **[Destructive] download_attachment**: Download an email attachment. If `savePath` is provided, saves the file to disk and returns the file path and size; otherwise returns a download URL.
-  - Parameters: `emailId` (required), `attachmentId` (required), `savePath` (optional)
-- **[Read-only] advanced_search**: Advanced email search with multiple criteria
-  - Parameters: `query` (optional), `from` (optional), `to` (optional), `subject` (optional), `hasAttachment` (optional), `isUnread` (optional), `isPinned` (optional), `mailboxId` (optional), `after` (optional), `before` (optional), `limit` (default: 50)
-- **[Read-only] get_thread**: Get all emails in a conversation thread
-  - Parameters: `threadId` (required)
-
-### Email Statistics & Analytics
-
-- **[Read-only] get_mailbox_stats**: Get statistics for a mailbox (unread count, total emails, etc.)
-  - Parameters: `mailboxId` (optional, defaults to all mailboxes)
-- **[Read-only] get_account_summary**: Get overall account summary with statistics
+| Tool | Mode | Description |
+|------|------|-------------|
+| `list_mailboxes` | Read-only | List all mailboxes in the account |
+| `list_emails` | Read-only | List emails from a mailbox (`mailboxId?`, `limit=20`) |
+| `get_email` | Read-only | Get a specific email by ID |
+| `get_recent_emails` | Read-only | Get the most recent emails from a mailbox (`limit=10`, `mailboxName=inbox`) |
+| `search_emails` | Read-only | Search emails by subject or content (`query`, `limit=20`) |
+| `advanced_search` | Read-only | Multi-criteria search: `query`, `from`, `to`, `subject`, `hasAttachment`, `isUnread`, `isPinned`, `mailboxId`, `after`, `before`, `limit=50` |
+| `get_thread` | Read-only | Get all emails in a conversation thread |
+| `get_email_attachments` | Read-only | List attachments for an email |
+| `get_mailbox_stats` | Read-only | Unread count and totals for a mailbox (`mailboxId?`) |
+| `get_account_summary` | Read-only | Overall account statistics |
+| `mark_email_read` | Mutative | Mark an email read or unread (`emailId`, `read=true`) |
+| `pin_email` | Mutative | Pin or unpin an email (`emailId`, `pinned=true`) |
+| `add_labels` | Mutative | Add mailboxes to an email without removing existing ones |
+| `create_draft` | Mutative | Create a draft without sending (`to?`, `cc?`, `bcc?`, `from?`, `subject?`, `textBody?`, `htmlBody?`, threading headers) |
+| `send_email` | Destructive | Send an email (`to`, `subject`, `textBody?`, `htmlBody?`, `cc?`, `bcc?`, threading headers) |
+| `reply_email` | Destructive | Reply with auto-built threading headers; set `send=false` to save as draft |
+| `edit_draft` | Destructive | Atomically replace a draft's fields (preserves unspecified fields) |
+| `send_draft` | Destructive | Send an existing draft |
+| `download_attachment` | Destructive | Download an attachment; saves to disk if `savePath` provided |
+| `move_email` | Destructive | Move an email to a different mailbox (replaces all mailboxes) |
+| `remove_labels` | Destructive | Remove specific mailboxes from an email |
+| `delete_email` | Destructive | Move an email to trash |
 
 ### Bulk Operations
 
-- **[Mutative] bulk_mark_read**: Mark multiple emails as read/unread
-  - Parameters: `emailIds` (required array), `read` (default: true)
-- **[Mutative] bulk_pin**: Pin or unpin multiple emails
-  - Parameters: `emailIds` (required array), `pinned` (default: true)
-- **[Destructive] bulk_move**: Move multiple emails to a mailbox
-  - Parameters: `emailIds` (required array), `targetMailboxId` (required)
-- **[Destructive] bulk_delete**: Delete multiple emails (move to trash)
-  - Parameters: `emailIds` (required array)
-- **[Mutative] bulk_add_labels**: Add labels to multiple emails simultaneously
-  - Parameters: `emailIds` (required array), `mailboxIds` (required array)
-- **[Destructive] bulk_remove_labels**: Remove labels from multiple emails simultaneously
-  - Parameters: `emailIds` (required array), `mailboxIds` (required array)
+| Tool | Mode | Description |
+|------|------|-------------|
+| `bulk_mark_read` | Mutative | Mark multiple emails read/unread (`emailIds`, `read=true`) |
+| `bulk_pin` | Mutative | Pin or unpin multiple emails (`emailIds`, `pinned=true`) |
+| `bulk_add_labels` | Mutative | Add mailboxes to multiple emails |
+| `bulk_move` | Destructive | Move multiple emails to a mailbox |
+| `bulk_remove_labels` | Destructive | Remove mailboxes from multiple emails |
+| `bulk_delete` | Destructive | Move multiple emails to trash |
+| `test_bulk_operations` | Mutative | Dry-run bulk operations safely (`dryRun=true`, `limit=3`) |
 
-### Contact Tools
+### Contacts
 
-- **[Read-only] list_contacts**: List all contacts
-  - Parameters: `limit` (default: 50)
-- **[Read-only] get_contact**: Get a specific contact by ID
-  - Parameters: `contactId` (required)
-- **[Read-only] search_contacts**: Search contacts by name or email
-  - Parameters: `query` (required), `limit` (default: 20)
+| Tool | Mode | Description |
+|------|------|-------------|
+| `list_contacts` | Read-only | List contacts from the address book (`limit=50`) |
+| `get_contact` | Read-only | Get a specific contact by ID |
+| `search_contacts` | Read-only | Search contacts by name or email (`query`, `limit=20`) |
 
-### Calendar Tools
+### Calendar
 
-- **[Read-only] list_calendars**: List all calendars
-- **[Read-only] list_calendar_events**: List calendar events
-  - Parameters: `calendarId` (optional), `limit` (default: 50)
-- **[Read-only] get_calendar_event**: Get a specific calendar event by ID
-  - Parameters: `eventId` (required)
-- **[Mutative] create_calendar_event**: Create a new calendar event
-  - Parameters: `calendarId` (required), `title` (required), `description` (optional), `start` (required, ISO 8601), `end` (required, ISO 8601), `location` (optional), `participants` (optional array)
+| Tool | Mode | Description |
+|------|------|-------------|
+| `list_calendars` | Read-only | List all calendars |
+| `list_calendar_events` | Read-only | List calendar events (`calendarId?`, `limit=50`) |
+| `get_calendar_event` | Read-only | Get a specific calendar event by ID |
+| `create_calendar_event` | Mutative | Create a calendar event (`calendarId`, `title`, `start`, `end`, `description?`, `location?`, `participants?`) |
 
-### Identity & Testing Tools
+### Identity & Utilities
 
-- **[Read-only] list_identities**: List sending identities (email addresses that can be used for sending)
-- **[Read-only] check_function_availability**: Check which functions are available based on account permissions (includes setup guidance)
-- **[Mutative] test_bulk_operations**: Safely test bulk operations with dry-run mode
-  - Parameters: `dryRun` (default: true), `limit` (default: 3)
+| Tool | Mode | Description |
+|------|------|-------------|
+| `list_identities` | Read-only | List sending identities (email addresses available for sending) |
+| `check_function_availability` | Read-only | Check which tools are available and get setup guidance |
 
 ## API Information
 
