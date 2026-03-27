@@ -283,7 +283,9 @@ src/
 ├── auth.ts              # Authentication handling
 ├── jmap-client.ts       # JMAP client wrapper
 ├── contacts-calendar.ts # Contacts and calendar extensions
-└── caldav-client.ts     # CalDAV calendar client (fallback)
+├── caldav-client.ts     # CalDAV calendar client (fallback)
+├── tools.ts             # Tool definitions with MCP operation annotations
+└── tool-filters.ts      # DISABLE_TOOLS environment variable handling
 ```
 
 ### Building
