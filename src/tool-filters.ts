@@ -67,7 +67,7 @@ export function getDisabledToolNames(): Set<string> {
   for (const entry of raw.split(',')) {
     const trimmed = entry.trim().toLowerCase();
     if (!trimmed) continue;
-    if (TOOL_GROUPS[trimmed]) {
+    if (Object.hasOwn(TOOL_GROUPS, trimmed) && Array.isArray(TOOL_GROUPS[trimmed])) {
       for (const tool of TOOL_GROUPS[trimmed]) {
         disabled.add(tool);
       }
