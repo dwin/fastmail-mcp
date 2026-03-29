@@ -100,7 +100,7 @@ export DISABLE_TOOLS="write"
 | Group | Tools |
 |-------|-------|
 | `email` | `list_mailboxes`, `list_emails`, `get_email`, `get_recent_emails`, `search_emails`, `advanced_search`, `get_thread`, `get_email_attachments`, `download_attachment`, `get_mailbox_stats`, `get_account_summary` |
-| `write` | `send_email`, `reply_email`, `create_draft`, `edit_draft`, `send_draft`, `mark_email_read`, `pin_email`, `delete_email`, `move_email`, `add_labels`, `remove_labels`, `bulk_mark_read`, `bulk_pin`, `bulk_move`, `bulk_delete`, `bulk_add_labels`, `bulk_remove_labels`, `create_calendar_event` |
+| `write` | `send_email`, `reply_email`, `create_draft`, `edit_draft`, `send_draft`, `mark_email_read`, `pin_email`, `delete_email`, `move_email`, `add_labels`, `remove_labels`, `download_attachment`, `bulk_mark_read`, `bulk_pin`, `bulk_move`, `bulk_delete`, `bulk_add_labels`, `bulk_remove_labels`, `create_calendar_event`, `test_bulk_operations` |
 | `calendar` | `list_calendars`, `list_calendar_events`, `get_calendar_event`, `create_calendar_event` |
 | `contacts` | `list_contacts`, `get_contact`, `search_contacts` |
 | `bulk` | `bulk_mark_read`, `bulk_pin`, `bulk_move`, `bulk_delete`, `bulk_add_labels`, `bulk_remove_labels`, `test_bulk_operations` |

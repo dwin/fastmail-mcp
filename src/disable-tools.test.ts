@@ -1,6 +1,7 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { getDisabledToolNames, TOOL_GROUPS } from './tool-filters.js';
+import { TOOLS, getOperationMode } from './tools.js';
 
 // ---------- helpers ----------
 
@@ -159,6 +160,24 @@ describe('TOOL_GROUPS', () => {
     for (const [group, tools] of Object.entries(TOOL_GROUPS)) {
       for (const tool of tools) {
         assert.equal(tool, tool.toLowerCase(), `Tool "${tool}" in group "${group}" should be lowercase`);
+      }
+    }
+  });
+
+  it('"write" group contains all non-read-only tools and no read-only tools', () => {
+    const writeGroup = new Set(TOOL_GROUPS.write);
+    for (const tool of TOOLS) {
+      const mode = getOperationMode(tool);
+      if (mode !== 'read-only') {
+        assert.ok(
+          writeGroup.has(tool.name),
+          `Non-read-only tool "${tool.name}" (mode: ${mode}) should be in TOOL_GROUPS.write`
+        );
+      } else {
+        assert.ok(
+          !writeGroup.has(tool.name),
+          `Read-only tool "${tool.name}" should not be in TOOL_GROUPS.write`
+        );
       }
     }
   });

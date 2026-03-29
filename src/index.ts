@@ -126,7 +126,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (disabledTools.has(name)) {
     throw new McpError(
       ErrorCode.MethodNotFound,
-      `Tool "${name}" is disabled via DISABLE_TOOLS environment variable`
+      `Tool "${name}" is disabled via environment configuration`
     );
   }
 

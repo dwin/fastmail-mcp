@@ -32,9 +32,10 @@ export const TOOL_GROUPS: Record<string, string[]> = {
     'send_email', 'reply_email', 'create_draft', 'edit_draft', 'send_draft',
     'mark_email_read', 'pin_email', 'delete_email', 'move_email',
     'add_labels', 'remove_labels',
+    'download_attachment',
     'bulk_mark_read', 'bulk_pin', 'bulk_move', 'bulk_delete',
     'bulk_add_labels', 'bulk_remove_labels',
-    'create_calendar_event',
+    'create_calendar_event', 'test_bulk_operations',
   ],
   calendar: [
     'list_calendars', 'list_calendar_events', 'get_calendar_event',
